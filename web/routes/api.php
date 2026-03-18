@@ -12,5 +12,5 @@ Route::prefix('auth')->group(function () {
 
 Route::group(['middleware' => 'auth:api'], function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
-    Route::get('/user', [AuthController::class, 'user']);
+   Route::get('/auth/me', [AuthController::class, 'me']); 
 });
