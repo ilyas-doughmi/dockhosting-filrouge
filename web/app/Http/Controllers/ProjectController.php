@@ -66,4 +66,22 @@ class ProjectController extends Controller
             'message' => "Project {$project->name} has been stopped."
         ]);
     }
+
+    public function start(Project $project, DockerService $dockerService)
+    {
+        if ($project->user_id !== Auth::guard('api')->id()) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized action'], 403);
+        }
+
+        $container = $project->container;
+        if (!$container) {
+            return response()->json(['success' => false, 'message' => 'Container not found'], 404);
+        }
+
+        $dockerService->startContainer($container);
+        return response()->json([
+            'success' => true,
+            'message' => "Project {$project->name} is now running."
+        ]);
+    }
 }
