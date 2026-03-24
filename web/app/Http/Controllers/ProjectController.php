@@ -10,6 +10,19 @@ use Illuminate\Support\Facades\Auth;
 
 class ProjectController extends Controller
 {
+
+    public function index()
+    {
+        $user = Auth::guard('api')->user();
+
+        $projects = $user->projects()->with('technology')->orderBy('created_at', 'desc')->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $projects
+        ]);
+    }
+
     public function store(StoreProjectRequest $request)
     {
         $user = Auth::guard('api')->user();
