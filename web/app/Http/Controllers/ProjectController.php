@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Project;
 use App\Http\Requests\StoreProjectRequest;
 use App\Jobs\SetupProjectContainer;
+use App\Services\DockerService;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 
@@ -45,5 +46,24 @@ class ProjectController extends Controller
             'message' => 'Project creation started! It will be online shortly.',
             'data' => $project
         ], 202); 
+    }
+
+    public function stop(Project $project,DockerService $dockerService)
+    {
+        if ($project->user_id !== Auth::guard('api')->id()) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized actions'], 403);
+        }
+
+        $container = $project->container;
+        if (!$container) {
+            return response()->json(['success' => false, 'message' => 'Container not found'], 404);
+        }
+
+        $dockerService->stopContainer($container);
+
+        return response()->json([
+            'success' => true,
+            'message' => "Project {$project->name} has been stopped."
+        ]);
     }
 }
