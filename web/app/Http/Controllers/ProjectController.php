@@ -84,4 +84,20 @@ class ProjectController extends Controller
             'message' => "Project {$project->name} is now running."
         ]);
     }
+
+    public function destroy(Project $project, DockerService $dockerService)
+    {
+        if ($project->user_id !== Auth::guard('api')->id()) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized action'], 403);
+        }
+
+        $dockerService->deleteProjectResources($project);
+
+        $project->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => "Project {$project->name} and its containers have been permanently deleted."
+        ]);
+    }
 }
