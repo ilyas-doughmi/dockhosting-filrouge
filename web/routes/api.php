@@ -18,4 +18,7 @@ Route::group(['middleware' => 'auth:api'], function () {
    // projects
    Route::get('/projects', [ProjectController::class, 'index']);
    Route::post('/projects', [ProjectController::class, 'store']);
+   Route::post('/projects/{project}/stop', [ProjectController::class, 'stop']); 
+   Route::post('/projects/{project}/start', [ProjectController::class, 'start']);
+   Route::delete('/projects/{project}', [ProjectController::class, 'destroy']);
 });
