@@ -6,7 +6,8 @@ use App\Models\Container;
 use App\Models\Project;
 use App\Models\Technology;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Process; 
+use Illuminate\Support\Facades\Process;
+use Illuminate\Support\Facades\File;
 
 class DockerService
 {
@@ -19,7 +20,6 @@ class DockerService
         $this->projectsBasePath = config('dockhosting.projects_path', storage_path('projects'));
     }
 
-
     public function createContainer(Project $project): Container
     {
         $technology = $project->technology;
@@ -30,7 +30,7 @@ class DockerService
         $hostPort = $this->findAvailablePort();
 
         $dockerId = $this->launchDockerProcess($containerName, $technology, $projectDir, $hostPort);
-        return $this->recordInDatabase($project, $containerId, $containerName, $hostPort, $projectDir);
+        return $this->recordInDatabase($project, $dockerId, $containerName, $hostPort, $projectDir);
     }
 
     public function stopContainer(Container $container): bool
@@ -62,7 +62,19 @@ class DockerService
         return $result->successful() ? trim($result->output()) : null;
     }
 
+    public function deleteProjectResources(Project $project): void
+    {
+        $container = $project->container;
+        if ($container) {
+            Process::run("docker rm -f {$container->container_name}");
+            $container->delete();
+        }
 
+        if ($project->directory_path && File::isDirectory($project->directory_path)) {
+            File::deleteDirectory($project->directory_path);
+            Log::info("Deleted directory: {$project->directory_path}");
+        }
+    }
 
     private function setupWorkspace(string $slug, Technology $technology): string
     {
