@@ -60,5 +60,14 @@ class ProjectFileController extends Controller
         return response()->json(['success' => true, 'message' => ucfirst($request->type) . ' created']);
     }
 
-    
+    public function update(Project $project, Request $request)
+    {
+        $path = $this->checkAccessAndGetPath($project, $request->path);
+        
+        File::put($path, $request->content); 
+
+        return response()->json(['success' => true, 'message' => 'File saved successfully']);
+    }
+
+   
 }
