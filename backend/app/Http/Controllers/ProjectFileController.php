@@ -69,5 +69,18 @@ class ProjectFileController extends Controller
         return response()->json(['success' => true, 'message' => 'File saved successfully']);
     }
 
+    public function destroy(Project $project, Request $request)
+    {
+        $path = $this->checkAccessAndGetPath($project, $request->path);
+
+        if (File::isDirectory($path)) {
+            File::deleteDirectory($path);
+        } elseif (File::isFile($path)) {
+            File::delete($path);
+        }
+
+        return response()->json(['success' => true, 'message' => 'Deleted successfully']);
+    }
+
    
 }
