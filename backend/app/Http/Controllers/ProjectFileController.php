@@ -47,5 +47,18 @@ class ProjectFileController extends Controller
         return response()->json(['success' => true, 'content' => File::get($path)]);
     }
 
+    public function store(Project $project, Request $request)
+    {
+        $path = $this->checkAccessAndGetPath($project, $request->path);
+        
+        if ($request->type === 'folder') {
+            File::makeDirectory($path, 0755, true);
+        } else {
+            File::put($path, ''); 
+        }
+
+        return response()->json(['success' => true, 'message' => ucfirst($request->type) . ' created']);
+    }
+
     
 }
