@@ -82,5 +82,16 @@ class ProjectFileController extends Controller
         return response()->json(['success' => true, 'message' => 'Deleted successfully']);
     }
 
-   
+    public function upload(Project $project, Request $request)
+    {
+        $folderPath = $this->checkAccessAndGetPath($project, $request->path ?? ''); 
+        
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
+            $file->move($folderPath, $file->getClientOriginalName());
+            return response()->json(['success' => true, 'message' => 'File uploaded successfully']);
+        }
+
+        return response()->json(['success' => false, 'message' => 'No file provided'], 400);
+    }
 }
