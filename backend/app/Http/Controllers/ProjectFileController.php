@@ -37,4 +37,15 @@ class ProjectFileController extends Controller
         return response()->json(['success' => true, 'data' => $directories->merge($files)]);
     }
 
+    public function show(Project $project, Request $request)
+    {
+        $path = $this->checkAccessAndGetPath($project, $request->query('path'));
+        if (!File::exists($path) || !File::isFile($path)) {
+            return response()->json(['success' => false, 'message' => 'File not found'], 404);
+        }
+
+        return response()->json(['success' => true, 'content' => File::get($path)]);
+    }
+
+    
 }
